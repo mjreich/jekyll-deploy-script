@@ -19,11 +19,15 @@ We use a submodule inside the jekyll source directory that is the deploy target 
 
 1. Push changes to staging
 
+```
     ./deploy.sh "A new blog post"
+```
 
 1. Push changes to production
 
+```
     ./deploy.sh "A new blog post ready for prod" prod
+```
 
 ## Setup
 
