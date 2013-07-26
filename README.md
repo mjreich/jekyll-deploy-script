@@ -31,10 +31,16 @@ We use a submodule inside the jekyll source directory that is the deploy target 
 
 ## Setup
 
+### Step 1
+
 The shell script assumes you have a Jekyll directory setup with a submodule that points to your GH pages repo. See the blog post [here](http://indelible.io/blog/2013/07/14/jekyll-plugins-and-github-pages.html) about how to set this up.
+
+### Step 2
 
 Next, create a repository that will be your staging environment. Add this as a new remote in the source submodule.
 
     git remote add <remote url> <remote name>
+
+### Step 3
 
 Finally, set up the `./deploy.sh` script with the configuration you want.
