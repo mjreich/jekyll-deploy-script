@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ ! $1 ]
+if [[ -z $1 ]]
 then
     echo "Usage: $0 'commit message' [env]"
     exit 0
@@ -13,11 +13,14 @@ ghbranch=`git rev-parse --abbrev-ref HEAD`
 # Jekyll destination directory, usually _sites
 sitesDir='source'
 
+# Use custom domain?
+customDomain=true
+
 # The url of your production site
-prodUrl="indelible.io"
+prodUrl="production.url"
 
 # The url of your dev/staging site
-devUrl="staging.indelible.io"
+devUrl="staging.url"
 
 # The name of the development git remote
 devRemote="dev"
@@ -43,30 +46,51 @@ else
   repo=$prodRemote
 fi
 
+echo "Deploying to $repo"
+
 # Clean up the sites dir, pull any outstanding changes
+echo "Updating sites with remote changes"
 cd ./$sitesDir 
 git checkout ./
 git pull $repo $ghPagesBranch
 
 # Build latest 
+echo "Building jekyll"
 cd ..
 jekyll build
 
 # Build the correct CNAME file for the env
 cd ./$sitesDir
-if [ $env == 'dev' ]; then
-  echo $devUrl > CNAME
-else
-  echo $prodUrl > CNAME
+
+if [ $customDomain == true ]
+then
+  echo "Generating CNAME"
+  if [ $env == 'dev' ]; then
+    echo $devUrl > CNAME
+  else
+    echo $prodUrl > CNAME
+  fi
 fi
 
 # Commit and push the changes to the sites dir
-git add ./ 
-git commit -a -m "$message"
+echo "Adding and committing destination files"
+if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]
+then
+  git add ./ 
+  git commit -a -m "$message"
+else
+  echo "Nothing to commit"
+fi
 git push $repo $ghPagesBranch
 
 # Commit and push the changes to the source dir
+echo "Adding and committing source files"
 cd ..
-git add ./
-git commit -a -m "$message"
+if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]
+then
+  git add ./
+  git commit -a -m "$message"
+else
+  echo "Nothing to commit"  
+fi
 git push origin $branch
